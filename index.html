@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QazaqTube</title>
+<style>
+:root{--bg:#0f0f0f;--panel:#1c1c1c;--muted:#aaa;--red:#ff3030}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#f5f5f5;font:15px Arial,sans-serif}
+header{height:64px;position:sticky;top:0;z-index:5;background:#101010ee;border-bottom:1px solid #292929;display:flex;align-items:center;gap:18px;padding:0 20px}
+.logo{font-size:21px;font-weight:800;white-space:nowrap}.logo b{background:var(--red);padding:6px 9px;border-radius:8px;margin-right:7px}
+.search{display:flex;max-width:600px;flex:1;margin:auto}.search input{flex:1;min-width:0;background:#111;border:1px solid #444;border-radius:24px 0 0 24px;padding:11px 16px;color:white}.search button,.action{background:#292929;border:0;color:white;padding:0 18px;border-radius:0 24px 24px 0;cursor:pointer}
+.action{border-radius:22px;padding:10px 15px}
+.layout{display:grid;grid-template-columns:205px 1fr;min-height:calc(100vh - 64px)}
+aside{padding:16px 10px;border-right:1px solid #292929;position:sticky;top:64px;height:calc(100vh - 64px)}
+.nav{display:block;padding:14px;border-radius:10px;color:white;text-decoration:none;cursor:pointer}.nav:hover,.nav.active{background:#292929}
+main{padding:22px 25px;min-width:0}.chips{display:flex;gap:9px;overflow:auto;margin-bottom:22px}.chip{border:0;border-radius:9px;background:#292929;color:white;padding:9px 15px;white-space:nowrap;cursor:pointer}.chip.active{background:#eee;color:#111}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:25px 17px}.video{cursor:pointer;min-width:0}.thumb{aspect-ratio:16/9;background:linear-gradient(135deg,#27465b,#8b4b67);border-radius:12px;display:grid;place-items:center;overflow:hidden}.thumb video{width:100%;height:100%;object-fit:cover}.thumb .emoji{font-size:50px}.meta{display:flex;gap:11px;padding-top:11px}.avatar{width:36px;height:36px;flex-shrink:0;border-radius:50%;background:#333;display:grid;place-items:center}.meta h3{font-size:15px;line-height:1.35;margin:0 0 6px}.meta p{font-size:13px;color:var(--muted);margin:3px 0}
+#shortsView{display:none}.shortsGrid{height:calc(100dvh - 125px);overflow-y:auto;scroll-snap-type:y mandatory;display:flex;flex-direction:column;align-items:center;gap:14px}.short{height:min(78dvh,720px);width:min(100%,410px);flex:0 0 auto;scroll-snap-align:start;border-radius:16px;overflow:hidden;position:relative;background:#222;cursor:pointer}.short video{width:100%;height:100%;object-fit:cover}.short .shortTitle{position:absolute;bottom:0;left:0;right:0;padding:55px 14px 18px;background:linear-gradient(transparent,#000d);font-weight:bold}.short .shortActions{position:absolute;right:12px;bottom:85px;display:flex;flex-direction:column;gap:18px;text-align:center}.short .shortActions button{background:#111b;border:0;color:white;border-radius:50%;width:45px;height:45px;font-size:21px}.short .shortActions small{display:block;font-size:12px}
+.empty{color:#aaa;text-align:center;padding:60px;grid-column:1/-1}
+.modal{display:none;position:fixed;inset:0;background:#000d;z-index:10;align-items:center;justify-content:center;padding:16px}.modal.show{display:flex}.modalbox{width:min(900px,100%);background:#181818;border-radius:15px;overflow:hidden}.player{background:#050505;aspect-ratio:16/9;display:grid;place-items:center;position:relative}.player video{width:100%;height:100%;object-fit:contain}.close{position:absolute;right:12px;top:12px;z-index:2;border:0;border-radius:50%;background:#000a;color:white;font-size:23px;width:38px;height:38px;cursor:pointer}.info{padding:17px}.info h2{margin:0 0 10px}.like{background:#303030;color:white;border:0;border-radius:20px;padding:10px 16px;cursor:pointer}
+.uploadPanel{display:none;background:#1b1b1b;border:1px solid #333;border-radius:14px;padding:18px;margin-bottom:20px}.uploadPanel.show{display:block}.uploadPanel input,.uploadPanel select{background:#111;color:white;border:1px solid #444;padding:11px;border-radius:8px;margin:5px 5px 5px 0;max-width:100%}.uploadPanel button{background:var(--red);color:white;border:0;border-radius:8px;padding:11px 17px;cursor:pointer}.status{color:#aaa;font-size:13px}
+@media(max-width:950px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){header{padding:0 10px;gap:8px}.logo{font-size:17px}.action{padding:9px}.layout{display:block}aside{height:auto;position:static;display:flex;overflow:auto;border-right:0;border-bottom:1px solid #292929;padding:5px}aside .nav{white-space:nowrap;padding:11px;font-size:13px}main{padding:15px 11px}.grid{grid-template-columns:1fr}.shortsGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.short{height:300px}.search input{padding:9px}.search button{padding:0 12px}}
+</style></head>
+<body>
+<header><div class="logo"><b>▶</b>QazaqTube</div><form class="search" id="searchForm"><input id="search" placeholder="Видео іздеу..."><button>⌕</button></form><button class="action" id="uploadToggle">＋ Жүктеу</button></header>
+<div class="layout"><aside>
+<a class="nav active" data-view="home">⌂ Басты бет</a>
+<a class="nav" data-view="shorts">ϟ Shorts</a>
+<a class="nav" data-view="liked">♡ Ұнатқандар</a>
+</aside><main>
+<div class="uploadPanel" id="uploadPanel">
+<h3>Видео жүктеу</h3>
+<form id="uploadForm">
+<input name="title" placeholder="Видео атауы" required maxlength="100">
+<select name="category"><option>Музыка</option><option>Ойындар</option><option>Білім</option><option>Спорт</option><option>Көңіл көтеру</option><option>Басқа</option></select>
+<label><input type="checkbox" name="isShort" value="true"> Shorts (тік видео)</label>
+<input type="file" name="video" accept="video/*" required>
+<button type="submit">Серверге жүктеу</button><span class="status" id="uploadStatus"></span>
+</form></div>
+<section id="homeView"><div class="chips" id="chips">
+<button class="chip active" data-cat="Барлығы">Барлығы</button><button class="chip" data-cat="Музыка">Музыка</button><button class="chip" data-cat="Ойындар">Ойындар</button><button class="chip" data-cat="Білім">Білім</button><button class="chip" data-cat="Спорт">Спорт</button><button class="chip" data-cat="Көңіл көтеру">Көңіл көтеру</button>
+</div><div class="grid" id="videoGrid"><div class="empty">Видеолар жүктелуде...</div></div></section>
+<section id="shortsView"><h2>ϟ Shorts</h2><div class="shortsGrid" id="shortsGrid"></div></section>
+</main></div>
+<div class="modal" id="modal"><div class="modalbox"><div class="player"><button class="close" id="close">×</button><video id="modalVideo" controls playsinline></video></div><div class="info"><h2 id="modalTitle"></h2><p id="modalCategory" style="color:#aaa"></p><button class="like" id="likeBtn">♡ Ұнату</button></div></div></div>
+<script>
+let videos=[], category='Барлығы', query='', liked=new Set(), current=null;
+const $=id=>document.getElementById(id);
+async function load(){try{const r=await fetch('/api/videos');videos=await r.json();render()}catch(e){$('videoGrid').innerHTML='<div class="empty">Серверге қосылу мүмкін болмады. Серверді іске қос.</div>'}}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function card(v){return `<article class="video" data-id="${v.id}"><div class="thumb"><video src="${esc(v.url)}#t=0.1" muted playsinline preload="metadata"></video></div><div class="meta"><div class="avatar">Q</div><div><h3>${esc(v.title)}</h3><p>QazaqTube · ${v.likes||0} лайк</p><p>${esc(v.category)}</p></div></div></article>`}
+function render(){
+ const filtered=videos.filter(v=>(category==='Барлығы'||v.category===category)&&v.title.toLowerCase().includes(query.toLowerCase())&&(!isLikedView||liked.has(v.id)));
+ $('videoGrid').innerHTML=filtered.length?filtered.map(card).join(''):'<div class="empty">Әзірге видео жоқ. Бірінші видеоны жүктеп көр!</div>';
+ const shorts=videos.filter(v=>v.isShort);
+ $('shortsGrid').innerHTML=shorts.length?shorts.map(v=>`<article class="short" data-id="${v.id}"><video src="${esc(v.url)}" muted loop playsinline preload="metadata"></video><div class="shortTitle">${esc(v.title)}<br><small>QazaqTube · ${esc(v.category)}</small></div><div class="shortActions"><div><button class="shortLike" data-like="${v.id}">♥</button><small>${v.likes||0}</small></div><div><button class="shortPlay" data-play="${v.id}">▶</button><small>Ашу</small></div></div></article>`).join(''):'<div class="empty">Әзірге Shorts жоқ. Жүктеу батырмасынан Shorts таңда!</div>';
+ const shortVideos=[...$('shortsGrid').querySelectorAll('video')];
+ if('IntersectionObserver' in window){const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{const vid=entry.target;if(entry.isIntersecting){vid.play().catch(()=>{})}else{vid.pause()}}),{root:$('shortsGrid'),threshold:.65});shortVideos.forEach(v=>observer.observe(v));}
+}
+let isLikedView=false;
+$('videoGrid').addEventListener('click',e=>{const el=e.target.closest('[data-id]');if(el)openVideo(el.dataset.id)});
+$('shortsGrid').addEventListener('click',e=>{
+ const like=e.target.closest('[data-like]'); if(like){e.stopPropagation();likeShort(like.dataset.like);return;}
+ const play=e.target.closest('[data-play]'); if(play){e.stopPropagation();openVideo(play.dataset.play);return;}
+ const el=e.target.closest('[data-id]');if(el){const v=el.querySelector('video');if(v){if(v.paused)v.play().catch(()=>{});else v.pause();}}
+});
+function openVideo(id){current=videos.find(v=>v.id===id);if(!current)return;$('modalTitle').textContent=current.title;$('modalCategory').textContent=current.category;$('modalVideo').src=current.url;$('likeBtn').textContent='♡ Ұнату · '+(current.likes||0);$('modal').classList.add('show');$('modalVideo').play().catch(()=>{})}
+function closeModal(){$('modalVideo').pause();$('modalVideo').removeAttribute('src');$('modalVideo').load();$('modal').classList.remove('show')}
+$('close').onclick=closeModal;$('modal').addEventListener('click',e=>{if(e.target===$('modal'))closeModal()});
+async function likeShort(id){try{const r=await fetch('/api/videos/'+id+'/like',{method:'POST'});const data=await r.json();const v=videos.find(x=>x.id===id);if(v)v.likes=data.likes;render()}catch(e){alert('Лайк қою мүмкін болмады')}}
+$('likeBtn').onclick=async()=>{if(!current)return;try{const r=await fetch('/api/videos/'+current.id+'/like',{method:'POST'});const data=await r.json();current.likes=data.likes;$('likeBtn').textContent='♥ Ұнатылды · '+data.likes;const v=videos.find(x=>x.id===current.id);if(v)v.likes=data.likes;render()}catch(e){alert('Лайк қою мүмкін болмады')}};
+$('uploadToggle').onclick=()=>$('uploadPanel').classList.toggle('show');
+$('uploadForm').onsubmit=async e=>{e.preventDefault();const form=e.currentTarget;const fd=new FormData(form);fd.set('isShort',form.isShort.checked?'true':'false');$('uploadStatus').textContent=' Жүктелуде...';try{const r=await fetch('/api/videos',{method:'POST',body:fd});const data=await r.json();if(!r.ok)throw Error(data.error||'Қате');videos.unshift(data);form.reset();$('uploadStatus').textContent=' Дайын!';render()}catch(err){$('uploadStatus').textContent=' '+err.message}};
+document.querySelectorAll('.nav').forEach(n=>n.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));n.classList.add('active');isLikedView=n.dataset.view==='liked';$('homeView').style.display=n.dataset.view==='shorts'?'none':'block';$('shortsView').style.display=n.dataset.view==='shorts'?'block':'none';if(n.dataset.view==='shorts')render();else render()});
+document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));b.classList.add('active');category=b.dataset.cat;render()});
+$('searchForm').onsubmit=e=>{e.preventDefault();query=$('search').value.trim();render()};$('search').oninput=e=>{query=e.target.value.trim();render()};
+load();
+</script></body></html>
